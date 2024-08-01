@@ -14,11 +14,11 @@ class FormService {
         const formRef = await addDoc(collection(db, 'forms'), data);
         const form = new Form({ id: formRef.id, ...data });
 
-        // Enviar correo al usuario
-        await sendEmail(data.email, "Registro Completado", "Gracias por registrarte.");
+        // Envío de correo al usuario
+        await sendEmail(data.email, "Registro Completado", 'formulario-recibido', { nombre: data.nombre });
 
-        // Enviar correo al administrador
-        await sendEmail('admin@example.com', "Nueva Solicitud", `Hay una nueva solicitud de ${data.email}.`);
+        // Envío de correo al administrador
+        await sendEmail('sfalama@espe.edu.ec', "Nueva Solicitud", 'aviso-admin', {});
 
         return form;
     }
