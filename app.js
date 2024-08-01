@@ -1,6 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const cors = require('cors'); // Asegúrate de requerir cors
+const cors = require('cors');
 const formRoutes = require('./routes/formRoutes');
 const authRoutes = require('./routes/authRoutes');
 const adminRoutes = require('./routes/adminRoutes');
@@ -10,6 +10,8 @@ const port = 3000;
 
 // Habilitar CORS para todas las rutas
 app.use(cors());
+require('dotenv').config();
+
 
 app.use(bodyParser.json());
 app.use('/api', formRoutes);

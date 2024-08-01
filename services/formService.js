@@ -1,24 +1,24 @@
 const db = require('../data/firebase');
 const { collection, addDoc, getDoc, doc, query, where, getDocs, updateDoc } = require('firebase/firestore');
 const Form = require('../models/formModel');
-const { sendClientEmail, sendAdminEmail } = require('./emailService');
+const sendEmail = require('../utils/mailHelper'); // Asegúrate de haber creado este módulo según las indicaciones anteriores
 
 class FormService {
     static async createForm(data) {
-        // Verificar si el correo electrónico ya existe
         const q = query(collection(db, 'forms'), where('email', '==', data.email));
         const querySnapshot = await getDocs(q);
         if (!querySnapshot.empty) {
             throw new Error('Email already exists');
         }
 
-        data.role = data.role || 'client';
         const formRef = await addDoc(collection(db, 'forms'), data);
         const form = new Form({ id: formRef.id, ...data });
 
-        // Enviar correos electrónicos
-        sendClientEmail(form);
-        sendAdminEmail(form);
+        // Enviar correo al usuario
+        await sendEmail(data.email, "Registro Completado", "Gracias por registrarte.");
+
+        // Enviar correo al administrador
+        await sendEmail('admin@example.com', "Nueva Solicitud", `Hay una nueva solicitud de ${data.email}.`);
 
         return form;
     }
@@ -60,6 +60,18 @@ class FormService {
         await updateDoc(formRef, {
             [statusType]: status
         });
+
+        // Enviar correo electrónico al usuario
+        const formSnap = await getDoc(formRef);
+        if (formSnap.exists()) {
+            const formData = formSnap.data();
+            const subject = status === 'approved' ? 'Solicitud Aprobada' : 'Solicitud Rechazada';
+            const text = status === 'approved'
+                ? 'Tu solicitud de adopción ha sido aprobada. Pronto nos pondremos en contacto contigo.'
+                : 'Lamentamos informarte que tu solicitud de adopción ha sido rechazada.';
+
+            await sendEmail(formData.email, subject, text);
+        }
     }
 }
 

@@ -1,5 +1,6 @@
 const FormService = require('../services/formService');
 
+
 class FormController {
     static async createForm(req, res) {
         try {
@@ -38,6 +39,8 @@ class FormController {
             res.status(400).json({ message: error.message });
         }
     }
+
+
 }
 
 module.exports = FormController;
